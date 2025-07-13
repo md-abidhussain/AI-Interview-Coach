@@ -1,3 +1,4 @@
+.env
 .env.local
 users.csv
 __pycache__

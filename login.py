@@ -34,11 +34,11 @@ def show_login():
         password = st.text_input("🔒 Password", type="password", key="login_pass")
         if st.button("Login"):
             if check_credentials(username, password):
-                st.success(f"✅ Welcome, {username}!")
-                return True
+             st.success(f"✅ Welcome, {username}!")
+             return True
             else:
                 st.error("❌ Invalid credentials")
-                return False
+            return False
 
     with tab2:
         new_user = st.text_input("👤 Create Username", key="signup_user")

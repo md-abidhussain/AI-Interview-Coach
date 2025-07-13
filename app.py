@@ -95,18 +95,22 @@ load_custom_css()
 # ========== Login ========== #
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
     st.markdown("<h1 class='centered-title'>🔐 Welcome to AI Interview Coach</h1>", unsafe_allow_html=True)
-    st.session_state.logged_in = show_login()
-    st.markdown("</div></div>", unsafe_allow_html=True)
-
-
+    logged_in = show_login()  # Let user log in first
+    if logged_in:
+        st.session_state.logged_in = True
+        st.rerun()
+    else:
+        st.stop()  # Stop if not logged in
 
 # ========== Main App ========== #
 if st.session_state.logged_in:
-    st.markdown("<h1 class='centered-title'>🎓 Welcome to AI Interview Coach Login</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='centered-title'>🎓 Welcome to AI Interview Coach</h1>", unsafe_allow_html=True)
     st.markdown("<div class='subtext'>Practice your answers. Get AI feedback. Improve your interview skills.</div>", unsafe_allow_html=True)
 
-    role = st.text_input("👨‍💻 Enter the job role you're preparing for:")
+    role = st.text_input("👨‍💻 Enter the job role you're preparing for: (Data Analyst, SDE)")
 
     if role:
         if 'interview_question' not in st.session_state:
