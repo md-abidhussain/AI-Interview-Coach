@@ -95,7 +95,7 @@ load_custom_css()
 # ========== Login ========== #
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
-    st.markdown("<h1 class='centered-title'>🔐 Welcome to AI Interview Coach Logout</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='centered-title'>🔐 Welcome to AI Interview Coach</h1>", unsafe_allow_html=True)
     st.session_state.logged_in = show_login()
     st.markdown("</div></div>", unsafe_allow_html=True)
 
