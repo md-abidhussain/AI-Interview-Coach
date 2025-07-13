@@ -4,5 +4,4 @@ google-generativeai
 openai-whisper
 pydub
 SpeechRecognition
-gemini_module
-dotenv
+python-dotenv
