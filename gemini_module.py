@@ -3,10 +3,10 @@ import streamlit as st
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv(override=True)
 API_KEY = os.getenv("GEMINI_API_KEY") or st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=API_KEY) 
-gemini_model = genai.GenerativeModel("models/gemini-2.0-flash")
+gemini_model = genai.GenerativeModel("models/gemini-2.5-flash")
 
 # --------------------------------------
 # 🔹 1. Feedback + Score Function
