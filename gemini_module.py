@@ -4,8 +4,15 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv(override=True)
-API_KEY = os.getenv("GEMINI_API_KEY") or st.secrets["GEMINI_API_KEY"]
-genai.configure(api_key=API_KEY) 
+API_KEY = os.getenv("GEMINI_API_KEY")
+if not API_KEY:
+    try:
+        API_KEY = st.secrets["GEMINI_API_KEY"]
+    except KeyError:
+        st.error("🔑 GEMINI_API_KEY is missing! If you are on Streamlit Cloud, please add it to your App Secrets.")
+        st.stop()
+
+genai.configure(api_key=API_KEY)
 gemini_model = genai.GenerativeModel("models/gemini-2.5-flash")
 
 # --------------------------------------
