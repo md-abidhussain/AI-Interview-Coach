@@ -13,7 +13,7 @@ if not API_KEY:
         st.stop()
 
 genai.configure(api_key=API_KEY)
-gemini_model = genai.GenerativeModel("models/gemini-2.5-flash")
+gemini_model = genai.GenerativeModel("models/gemini-flash-latest")
 
 # --------------------------------------
 # 🔹 1. Feedback + Score Function
