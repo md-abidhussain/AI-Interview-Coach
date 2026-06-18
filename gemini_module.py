@@ -3,7 +3,6 @@ import streamlit as st
 from dotenv import load_dotenv
 import os
 
-# Fallback models in priority order to handle rate limits and future deprecations
 FALLBACK_MODELS = [
     "gemini-2.5-flash",
     "gemini-2.0-flash",
@@ -29,19 +28,16 @@ def generate_with_fallbacks(prompt):
     for model_name in FALLBACK_MODELS:
         try:
             model = genai.GenerativeModel(model_name)
-            # Use request_options to set timeout so we don't hang if a model is unavailable
             response = model.generate_content(prompt, request_options={'timeout': 15.0})
             return response.text
         except Exception as e:
             last_err = e
-            # Output traceback or error internally for debug logs
             print(f"Fallback warning: Failed with {model_name} -> {e}. Trying next model...")
             
     if last_err:
         raise last_err
     raise ValueError("Failed to generate content using all fallback models.")
 
-# Function to get feedback and rating score from Gemini model
 def get_feedback(answer, role, mode="text"):
     if mode == "text":
         prompt = f"""
@@ -82,7 +78,6 @@ def get_feedback(answer, role, mode="text"):
     try:
         response_text = generate_with_fallbacks(prompt)
         
-        # Extract score and feedback from model response
         if "Score:" in response_text:
             feedback, score = response_text.split("Score:")
             clean_score = score.strip().replace(",", "").replace(".", "")
@@ -90,9 +85,9 @@ def get_feedback(answer, role, mode="text"):
         else:
             return response_text.strip(), "N/A"
     except Exception as e:
-        return f"❌ Error evaluating answer: {str(e)}", "N/A"
+        print(f"Gemini API Feedback Error: {e}")
+        return "⚠️ The AI evaluator is currently experiencing connectivity issues or heavy load. Your response has been recorded, but we could not fetch your detailed feedback. Please try again shortly.", "N/A"
 
-# Function to generate interview question based on the role
 def generate_question(role):
     prompt = f"""
     You are a professional interviewer. The candidate is applying for the role: {role}.
@@ -103,5 +98,6 @@ def generate_question(role):
         response_text = generate_with_fallbacks(prompt)
         return response_text.strip()
     except Exception as e:
-        return f"❌ Error generating question: {str(e)}"
+        print(f"Gemini API Question Error: {e}")
+        return "⚠️ We are currently unable to generate a new interview question due to temporary connectivity issues. Please click 'Try Again' or reload the page."
 

@@ -1,50 +1,63 @@
 import streamlit as st
-import pandas as pd
 import os
 import bcrypt
+import csv
+import re
 
 USER_CSV = "users.csv"
 
-# Create CSV if not exists
-if not os.path.exists(USER_CSV):
-    df = pd.DataFrame(columns=["username", "password"])
-    df.to_csv(USER_CSV, index=False)
+def validate_username(username):
+    return bool(re.match(r'^[a-zA-Z0-9_]{3,20}$', username))
 
-# Save new user
 def save_user(username, password):
-    df = pd.read_csv(USER_CSV)
-    if username in df["username"].values:
-        return False
-    # Hash password with bcrypt
-    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    new_user = pd.DataFrame({"username": [username], "password": [hashed_pw]})
-    df = pd.concat([df, new_user], ignore_index=True)
-    df.to_csv(USER_CSV, index=False)
-    return True
-
-# Check login
-def check_credentials(username, password):
-    df = pd.read_csv(USER_CSV)
-    user_row = df[df["username"] == username]
-    if user_row.empty:
-        return False
+    username = username.strip()
+    if not validate_username(username):
+        return "invalid"
     
-    stored_val = str(user_row.iloc[0]["password"])
-    
-    # Try verifying as bcrypt hash
     try:
-        # Bcrypt hashes typically start with $2a$, $2b$, or $2y$
-        if stored_val.startswith("$2"):
-            return bcrypt.checkpw(password.encode('utf-8'), stored_val.encode('utf-8'))
-    except Exception:
-        pass
-        
-    # Fallback to plain text for legacy users
-    return stored_val == password
+        if os.path.exists(USER_CSV):
+            with open(USER_CSV, mode='r', newline='', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                next(reader, None)
+                for row in reader:
+                    if row and row[0].strip() == username:
+                        return "exists"
+                        
+        file_exists = os.path.exists(USER_CSV)
+        with open(USER_CSV, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(["username", "password"])
+            hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            writer.writerow([username, hashed_pw])
+        return "success"
+    except Exception as e:
+        print(f"Database write error: {e}")
+        return "error"
+
+def check_credentials(username, password):
+    username = username.strip()
+    if not username or not os.path.exists(USER_CSV):
+        return False
     
+    try:
+        with open(USER_CSV, mode='r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader, None)
+            for row in reader:
+                if row and row[0].strip() == username:
+                    stored_val = row[1]
+                    try:
+                        if stored_val.startswith("$2"):
+                            return bcrypt.checkpw(password.encode('utf-8'), stored_val.encode('utf-8'))
+                    except Exception:
+                        pass
+                    return stored_val == password
+    except Exception as e:
+        print(f"Database read error: {e}")
+    return False
 
 def show_login():
-    # Landing Page Hero Section
     st.markdown("""
         <div style="text-align: center; margin-bottom: 2rem;">
             <h1 style="font-size: 3rem; font-weight: 800; color: #f8fafc; margin-bottom: 0.5rem; background: -webkit-linear-gradient(45deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Interview Coach</h1>
@@ -52,11 +65,9 @@ def show_login():
         </div>
     """, unsafe_allow_html=True)
 
-    # Initialize a session state for showing the skip button on failure
     if 'login_failed' not in st.session_state:
         st.session_state.login_failed = False
 
-    # Tabs for Login / Sign Up
     tab1, tab2 = st.tabs(["🔐 Login", "📝 Sign Up"])
     
     with tab1:
@@ -85,21 +96,25 @@ def show_login():
             submitted_signup = st.form_submit_button("Create Account", use_container_width=True)
             if submitted_signup:
                 if len(new_user) > 0 and len(new_pass) > 0:
-                    if save_user(new_user, new_pass):
+                    status = save_user(new_user, new_pass)
+                    if status == "success":
                         st.success("Account created successfully! You can now log in.")
                         st.session_state.login_failed = False
-                    else:
+                    elif status == "exists":
                         st.warning("Username already exists. Please choose another one.")
+                    elif status == "invalid":
+                        st.warning("⚠️ Username must be 3-20 characters long and contain only letters, numbers, and underscores (no spaces or slashes).")
+                    else:
+                        st.error("❌ A database error occurred. Please try again.")
                 else:
                     st.warning("Please fill in both fields.")
 
     st.markdown("<div style='margin-top: 1.5rem; text-align: center; color: #64748b;'>— OR —</div>", unsafe_allow_html=True)
     st.write("")
     
-    # "Skip" button behavior
     skip_label = "Skip for Now (Continue as Guest)" if st.session_state.login_failed else "Continue as Guest"
     if st.button(skip_label, use_container_width=True, type="secondary"):
         st.session_state.login_failed = False
         return 'demo'
 
-    return False
+    return False
