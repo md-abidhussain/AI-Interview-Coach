@@ -271,12 +271,26 @@ elif st.session_state.mode == 'app':
     role = st.text_input("Enter the job role you're preparing for: (Data Analyst, SDE)")
 
     if role:
-        if 'interview_question' not in st.session_state:
+        if 'interview_question' not in st.session_state or st.session_state.get('current_role') != role:
+            st.session_state.current_role = role
             with st.spinner("Generating interview question..."):
                 st.session_state.interview_question = generate_question(role)
         
         st.markdown("### 💬 Gemini's Interview Question")
-        st.markdown(f"<div class='question-box'>{st.session_state.interview_question}</div>", unsafe_allow_html=True)
+        if st.session_state.interview_question.startswith("❌"):
+            st.error(st.session_state.interview_question)
+            if st.button("🔄 Try Again"):
+                if 'interview_question' in st.session_state:
+                    del st.session_state.interview_question
+                st.rerun()
+        else:
+            st.markdown(f"<div class='question-box'>{st.session_state.interview_question}</div>", unsafe_allow_html=True)
+            col1, col2 = st.columns([1, 4])
+            with col1:
+                if st.button("🔄 Next Question"):
+                    if 'interview_question' in st.session_state:
+                        del st.session_state.interview_question
+                    st.rerun()
 
         option = st.radio("🎯 Choose how you'll answer:", ["✍️ Text Input", "🎙️ Upload Audio", "🎤 Speak Live (Mic)"])
 
@@ -289,9 +303,12 @@ elif st.session_state.mode == 'app':
                     st.markdown("### 🗣️ Transcribed Answer")
                     st.markdown(f"<div class='answer-box'>{user_input}</div>", unsafe_allow_html=True)
                     st.markdown("### 💡 Gemini's Feedback")
-                    st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
-                    st.markdown("### 📊 Your AI Score")
-                    st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
+                    if feedback.startswith("❌"):
+                        st.error(feedback)
+                    else:
+                        st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
+                        st.markdown("### 📊 Your AI Score")
+                        st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
                 else:
                     st.warning("Please enter your answer first!")
 
@@ -307,9 +324,12 @@ elif st.session_state.mode == 'app':
                         with st.spinner("Evaluating answer..."):
                             feedback, score = get_feedback(answer=transcribed, role=role, mode="voice")
                         st.markdown("### 💡 Gemini's Feedback")
-                        st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
-                        st.markdown("### 📊 Your AI Score")
-                        st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
+                        if feedback.startswith("❌"):
+                            st.error(feedback)
+                        else:
+                            st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
+                            st.markdown("### 📊 Your AI Score")
+                            st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
                     except Exception as e:
                         st.error(f"❌ Error: {e}")
 
@@ -323,9 +343,12 @@ elif st.session_state.mode == 'app':
                     with st.spinner("Evaluating your response..."):
                         feedback, score = get_feedback(answer=result, role=role, mode="voice")
                     st.markdown("### 💡 Gemini's Feedback")
-                    st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
-                    st.markdown("### 📊 Your AI Score")
-                    st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
+                    if feedback.startswith("❌"):
+                        st.error(feedback)
+                    else:
+                        st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
+                        st.markdown("### 📊 Your AI Score")
+                        st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
 
         st.markdown("""
         <footer>
