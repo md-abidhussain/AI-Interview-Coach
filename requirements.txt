@@ -5,3 +5,4 @@ openai-whisper
 pydub
 SpeechRecognition
 python-dotenv
+bcrypt

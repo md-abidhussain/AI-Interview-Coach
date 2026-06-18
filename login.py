@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import bcrypt
 
 USER_CSV = "users.csv"
 
@@ -14,7 +15,9 @@ def save_user(username, password):
     df = pd.read_csv(USER_CSV)
     if username in df["username"].values:
         return False
-    new_user = pd.DataFrame({"username": [username], "password": [password]})
+    # Hash password with bcrypt
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    new_user = pd.DataFrame({"username": [username], "password": [hashed_pw]})
     df = pd.concat([df, new_user], ignore_index=True)
     df.to_csv(USER_CSV, index=False)
     return True
@@ -22,7 +25,22 @@ def save_user(username, password):
 # Check login
 def check_credentials(username, password):
     df = pd.read_csv(USER_CSV)
-    return ((df["username"] == username) & (df["password"] == password)).any()
+    user_row = df[df["username"] == username]
+    if user_row.empty:
+        return False
+    
+    stored_val = str(user_row.iloc[0]["password"])
+    
+    # Try verifying as bcrypt hash
+    try:
+        # Bcrypt hashes typically start with $2a$, $2b$, or $2y$
+        if stored_val.startswith("$2"):
+            return bcrypt.checkpw(password.encode('utf-8'), stored_val.encode('utf-8'))
+    except Exception:
+        pass
+        
+    # Fallback to plain text for legacy users
+    return stored_val == password
     
 
 def show_login():
