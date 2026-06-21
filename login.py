@@ -39,7 +39,7 @@ def save_user(username, password):
     
     db_url = get_db_connection()
     if not db_url:
-        return "error"
+        return "Database error: DATABASE_URL is not set"
         
     conn = None
     try:
@@ -64,7 +64,7 @@ def save_user(username, password):
         if conn:
             conn.rollback()
             conn.close()
-        return "error"
+        return f"Database error: {str(e)}"
 
 def check_credentials(username, password):
     username = username.strip()
@@ -73,7 +73,7 @@ def check_credentials(username, password):
     
     db_url = get_db_connection()
     if not db_url:
-        return False
+        raise ValueError("DATABASE_URL is missing! Please configure it in your secrets.")
         
     conn = None
     try:
@@ -100,7 +100,7 @@ def check_credentials(username, password):
         print(f"PostgreSQL read error: {e}")
         if conn:
             conn.close()
-        return False
+        raise e
 
 def show_login():
     db_url = get_db_connection()
@@ -129,13 +129,16 @@ def show_login():
             
             submitted = st.form_submit_button("Log In", use_container_width=True)
             if submitted:
-                if check_credentials(username, password):
-                    st.session_state.login_failed = False
-                    st.success(f"Welcome back, {username}!")
-                    return True
-                else:
-                    st.session_state.login_failed = True
-                    st.error("Invalid credentials. Please try again or create an account.")
+                try:
+                    if check_credentials(username, password):
+                        st.session_state.login_failed = False
+                        st.success(f"Welcome back, {username}!")
+                        return True
+                    else:
+                        st.session_state.login_failed = True
+                        st.error("Invalid credentials. Please try again or create an account.")
+                except Exception as e:
+                    st.error(f"❌ Database error: {e}")
 
     with tab2:
         with st.form("signup_form"):
@@ -154,6 +157,8 @@ def show_login():
                         st.warning("Username already exists. Please choose another one.")
                     elif status == "invalid":
                         st.warning("⚠️ Username must be 3-20 characters long and contain only letters, numbers, and underscores (no spaces or slashes).")
+                    elif status.startswith("Database error:"):
+                        st.error(f"❌ {status}")
                     else:
                         st.error("❌ A database error occurred. Please try again.")
                 else:
