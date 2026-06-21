@@ -1,63 +1,113 @@
 import streamlit as st
 import os
 import bcrypt
-import csv
 import re
-
-USER_CSV = "users.csv"
+import psycopg2
 
 def validate_username(username):
     return bool(re.match(r'^[a-zA-Z0-9_]{3,20}$', username))
+
+def get_db_connection():
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        try:
+            db_url = st.secrets["DATABASE_URL"]
+        except KeyError:
+            pass
+    return db_url
+
+def init_db(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(50) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL
+            )
+        ''')
+        conn.commit()
+        cursor.close()
+    except Exception as e:
+        print(f"Database init error: {e}")
+        conn.rollback()
 
 def save_user(username, password):
     username = username.strip()
     if not validate_username(username):
         return "invalid"
     
+    db_url = get_db_connection()
+    if not db_url:
+        return "error"
+        
+    conn = None
     try:
-        if os.path.exists(USER_CSV):
-            with open(USER_CSV, mode='r', newline='', encoding='utf-8') as f:
-                reader = csv.reader(f)
-                next(reader, None)
-                for row in reader:
-                    if row and row[0].strip() == username:
-                        return "exists"
-                        
-        file_exists = os.path.exists(USER_CSV)
-        with open(USER_CSV, mode='a', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            if not file_exists:
-                writer.writerow(["username", "password"])
-            hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            writer.writerow([username, hashed_pw])
+        conn = psycopg2.connect(db_url)
+        init_db(conn)
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT username FROM users WHERE username = %s", (username,))
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return "exists"
+            
+        hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_pw))
+        conn.commit()
+        cursor.close()
+        conn.close()
         return "success"
     except Exception as e:
-        print(f"Database write error: {e}")
+        print(f"PostgreSQL write error: {e}")
+        if conn:
+            conn.rollback()
+            conn.close()
         return "error"
 
 def check_credentials(username, password):
     username = username.strip()
-    if not username or not os.path.exists(USER_CSV):
+    if not username:
         return False
     
+    db_url = get_db_connection()
+    if not db_url:
+        return False
+        
+    conn = None
     try:
-        with open(USER_CSV, mode='r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            next(reader, None)
-            for row in reader:
-                if row and row[0].strip() == username:
-                    stored_val = row[1]
-                    try:
-                        if stored_val.startswith("$2"):
-                            return bcrypt.checkpw(password.encode('utf-8'), stored_val.encode('utf-8'))
-                    except Exception:
-                        pass
-                    return stored_val == password
+        conn = psycopg2.connect(db_url)
+        init_db(conn)
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if not row:
+            return False
+            
+        stored_val = row[0]
+        try:
+            if stored_val.startswith("$2"):
+                return bcrypt.checkpw(password.encode('utf-8'), stored_val.encode('utf-8'))
+        except Exception:
+            pass
+        return stored_val == password
     except Exception as e:
-        print(f"Database read error: {e}")
-    return False
+        print(f"PostgreSQL read error: {e}")
+        if conn:
+            conn.close()
+        return False
 
 def show_login():
+    db_url = get_db_connection()
+    if not db_url:
+        st.error("🔑 DATABASE_URL is missing! Please configure your PostgreSQL database URL in your local .env or Streamlit App Secrets.")
+        st.stop()
+
     st.markdown("""
         <div style="text-align: center; margin-bottom: 2rem;">
             <h1 style="font-size: 3rem; font-weight: 800; color: #f8fafc; margin-bottom: 0.5rem; background: -webkit-linear-gradient(45deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Interview Coach</h1>

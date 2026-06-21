@@ -6,3 +6,4 @@ pydub
 SpeechRecognition
 python-dotenv
 bcrypt
+psycopg2-binary
