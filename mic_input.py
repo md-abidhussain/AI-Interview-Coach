@@ -1,6 +1,4 @@
 import speech_recognition as sr
-import pyaudio
-import wave
 
 def record_and_transcribe():
     recognizer = sr.Recognizer()
@@ -17,6 +15,9 @@ def record_and_transcribe():
         return f"❌ Error: {e}"
 
 def record_audio_with_pyaudio(filename, duration=5):
+    import pyaudio
+    import wave
+    
     chunk = 1024
     sample_format = pyaudio.paInt16
     channels = 1
