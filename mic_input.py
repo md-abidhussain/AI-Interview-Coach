@@ -1,6 +1,11 @@
 import speech_recognition as sr
 
 def record_and_transcribe():
+    try:
+        import pyaudio
+    except ImportError:
+        return "⚠️ Live microphone recording is only supported when running this application locally. Since the deployed cloud server cannot access your local microphone, please use the 'Upload Audio' option instead!"
+
     recognizer = sr.Recognizer()
     try:
         with sr.Microphone() as source:
