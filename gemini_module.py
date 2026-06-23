@@ -99,5 +99,5 @@ def generate_question(role):
         return response_text.strip()
     except Exception as e:
         print(f"Gemini API Question Error: {e}")
-        return "⚠️ We are currently unable to generate a new interview question due to temporary connectivity issues. Please click 'Try Again' or reload the page."
+        return f"⚠️ We are currently unable to generate a new interview question. Error: {str(e)}"
 
