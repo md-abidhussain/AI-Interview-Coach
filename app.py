@@ -52,8 +52,6 @@ def apply_login_styles():
             transition: all 0.2s ease;
         }
         div[data-testid="stTextInput"] input:focus {
-            border: 1px solid #3b82f6 !important;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
             background-color: rgba(15, 23, 42, 0.8) !important;
             outline: none !important;
         }
@@ -213,8 +211,6 @@ def load_custom_css():
             div[data-testid="stTextInput"] input:focus,
             div[data-testid="stTextArea"] textarea:focus {
                 background-color: rgba(30, 41, 59, 1) !important;
-                border: 1px solid #3b82f6 !important;
-                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
             }
 
             /* Override Streamlit Markdown constraints */
