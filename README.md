@@ -1,74 +1,164 @@
-🎓 AI Interview Coach
-AI-powered interview practice tool with role-specific questions, voice/text answers, Gemini AI feedback, and secure user authentication.
+# 🎓 AI Interview Coach
 
-### Topics:
-`python`, `streamlit`, `gemini-api`, `whisper`, `sqlite`, `bcrypt`, `nlp`, `interview-prep`, `ai`, `speech-recognition`
+> AI-powered interview practice platform with role-specific questions, multi-modal answer input, real-time Gemini feedback, and secure user authentication.
 
-💡 Project Type: Voice + Text Based AI App  
-🛠️ Built With: Streamlit, Gemini Flash API, Whisper, SpeechRecognition, SQLite  
-☁️ Deployed On: [Streamlit Cloud](https://ai-interview-coach-06122005.streamlit.app/)
+🔗 **Live Demo:** [ai-interview-coach-06122005.streamlit.app](https://ai-interview-coach-06122005.streamlit.app/)
 
-🔑 Features
+---
 
-🎤 Voice input + transcription using Whisper
-✍️ Text-based answer option
-🧠 AI-generated questions based on job role
-🗣️ AI feedback on both content + communication
-🔐 User login/signup with secure SQLite storage & bcrypt password hashing
-🎨 Modern dark mode UI with gradient styling
-🧪 Robust Gemini model fallback chain (Gemini 2.5-flash -> 2.0-flash -> 1.5-flash)
+## 📌 Overview
 
-🚀 How To Run Locally
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/md-abidhussain/AI-Interview-Coach
-   cd AI-Interview-Coach
-   ```
+AI Interview Coach helps job seekers practice interviews for any role — SDE, Data Analyst, Product Manager, and more. Users get AI-generated questions, answer via text, uploaded audio, or live microphone, and receive instant structured feedback with a score out of 10.
 
-2. Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+Built as a solo project during an AI internship. Idea, architecture, and core logic are original.
 
-3. Create a `.env` file in the root directory and add your database and API credentials:
-   ```env
-   GEMINI_API_KEY=your_actual_api_key_here
-   DATABASE_URL=users.db
-   ```
+---
 
-4. Run the Streamlit application:
-   ```bash
-   streamlit run app.py
-   ```
+## ✨ Features
 
-⚙️ Secret Configurations & Deployment
+- 🔐 **Secure Authentication** — bcrypt-hashed passwords stored in SQLite; supports login, signup, and guest mode
+- 💬 **Role-Specific Questions** — Gemini generates tailored interview questions based on the target job role
+- ✍️ **Text Answer Mode** — Type your response and get instant AI evaluation
+- 🎙️ **Audio Upload Mode** — Upload an MP3/WAV/M4A file; Whisper transcribes it, Gemini evaluates it
+- 🎤 **Live Mic Mode** — Speak directly; real-time transcription via SpeechRecognition
+- 🤖 **4-Model Fallback Chain** — Tries `gemini-2.5-flash → gemini-2.0-flash → gemini-1.5-flash → gemini-flash-latest` for high availability
+- 📊 **AI Scoring** — Structured feedback on knowledge, clarity, and relevance with a score out of 10
+- ⚠️ **Graceful Error Handling** — API failures return user-friendly messages, never raw crashes
 
-### 1. SQLite Database Configuration
-This project uses **SQLite** for user account registration and login authentication.
-* **Local Run:** Set the `DATABASE_URL` key in your `.env` file (e.g., `DATABASE_URL=users.db`). If not set, it defaults to `users.db` automatically.
-* **Streamlit Cloud:** Add `DATABASE_URL` to your **App Secrets** (see below).
+---
 
-*Note: The app will automatically connect and initialize the `users` table on startup.*
+## 🛠️ Tech Stack
 
-### 2. GitHub Secrets (Git Secrets)
-To securely store credentials in GitHub (e.g. for CI/CD runners):
-1. Go to your GitHub repository at [md-abidhussain/AI-Interview-Coach](https://github.com/md-abidhussain/AI-Interview-Coach).
-2. Click on the **Settings** tab.
-3. In the left sidebar, click **Secrets and variables** -> **Actions**.
-4. Click the **New repository secret** button.
-5. Create secrets for:
-   - `GEMINI_API_KEY`
-   - `DATABASE_URL`
+| Layer | Technology |
+|---|---|
+| Frontend / App | Streamlit |
+| AI / LLM | Google Gemini API (`google-generativeai`) |
+| Speech-to-Text | OpenAI Whisper + SpeechRecognition |
+| Audio Processing | pydub |
+| Database | SQLite (`sqlite3`) |
+| Auth | bcrypt |
+| Config | python-dotenv |
+| Deployment | Streamlit Cloud |
 
-### 3. Streamlit Cloud Secrets (Production Deployment)
-Streamlit Cloud uses its own secret manager to run the app. To add your database credentials and API key for the live website:
-1. Log into your dashboard at [share.streamlit.io](https://share.streamlit.io/).
-2. Locate the **AI Interview Coach** app in the list.
-3. Click the three dots `...` next to the app name and choose **Settings**.
-4. Select **Secrets** on the left menu.
-5. Enter your configuration keys in TOML format:
-   ```toml
-   GEMINI_API_KEY = "your_actual_api_key_here"
-   DATABASE_URL = "users.db"
-   ```
-6. Click **Save**. The app will automatically restart and be active!
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────┐
+│              Streamlit Frontend          │
+│   Login / Signup / Guest  ──▶  App UI   │
+└────────────┬────────────────────────────┘
+             │
+     ┌───────▼────────┐
+     │   login.py      │  bcrypt auth + SQLite users table
+     └───────┬─────────┘
+             │
+     ┌───────▼────────┐
+     │   app.py        │  Session state + answer routing
+     └──┬────┬─────┬──┘
+        │    │     │
+   Text │  Audio  Mic
+        │    │     │
+        │  whisper_transcriber.py
+        │  mic_input.py
+        │    │     │
+     ┌──▼────▼─────▼──┐
+     │  gemini_module  │  4-model fallback chain + prompt engineering
+     └────────────────┘
+```
+
+---
+
+## 📂 Project Structure
+
+```
+├── app.py                  # Main Streamlit app + UI logic
+├── login.py                # Auth: bcrypt + SQLite signup/login
+├── gemini_module.py        # Gemini API integration + fallback chain
+├── whisper_transcriber.py  # Audio file → text (Whisper)
+├── mic_input.py            # Live mic → text (SpeechRecognition)
+├── requirements.txt
+├── .env                    # (not committed) API keys
+└── .gitignore
+```
+
+---
+
+## 🚀 Local Setup
+
+**1. Clone the repo**
+```bash
+git clone https://github.com/md-abidhussain/ai-interview-coach.git
+cd ai-interview-coach
+```
+
+**2. Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+**3. Add your API key**
+
+Create a `.env` file:
+```
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+**4. Run the app**
+```bash
+streamlit run app.py
+```
+
+---
+
+## 🔐 Security Design
+
+- Passwords hashed with `bcrypt.hashpw()` on signup — never stored in plain text
+- `bcrypt.checkpw()` used for login verification — original password is never recoverable
+- API key loaded from `.env` → Streamlit Secrets → raises clear error if missing
+- `.env` and `users.db` excluded from version control via `.gitignore`
+
+---
+
+## 🤖 Gemini Fallback Logic
+
+```python
+FALLBACK_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-flash-latest"
+]
+```
+
+Each model is tried with a 15-second timeout. If all fail, a user-friendly error message is returned — the app never crashes raw on API failure.
+
+---
+
+## 📸 Screenshots
+
+| Login Page | Interview Screen | AI Feedback |
+|---|---|---|
+| ![Login Page](screenshots/login_interface.png) | ![Interview Screen](screenshots/asking_question_interface.png) | ![AI Feedback](screenshots/ai_feedback_interface.png) |
+
+---
+
+## 🔮 Future Improvements
+
+- Session history — store past questions and scores per user in SQLite
+- Password strength validation on signup
+- Logout button with session expiry
+- Dashboard showing improvement over time
+- Support for more roles and difficulty levels
+
+---
+
+## 👨💻 Author
+
+**Mohd Abid Hussain** — CSE @ Jamia Hamdard  
+[LinkedIn](https://www.linkedin.com/in/md-abidhussain) · [GitHub](https://github.com/md-abidhussain)
+
+---
+
+*Built with Python, Streamlit, and Google Gemini API*
