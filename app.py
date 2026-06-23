@@ -264,6 +264,11 @@ if st.session_state.mode == 'login':
 
 
 elif st.session_state.mode == 'app':
+    with st.sidebar:
+        st.markdown("<h3 style='color: #cbd5e1;'>Session Management</h3>", unsafe_allow_html=True)
+        if st.button("🚪 Log Out", use_container_width=True):
+            st.session_state.clear()
+            st.rerun()
       
     st.markdown("<h1 class='centered-title'>AI Interview Coach</h1>", unsafe_allow_html=True)
     st.markdown("<div class='subtext'>Practice your answers. Get AI feedback. Improve your interview skills.</div>", unsafe_allow_html=True)

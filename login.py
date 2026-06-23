@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import bcrypt
 import re
-import psycopg2
+import sqlite3
 
 def validate_username(username):
     return bool(re.match(r'^[a-zA-Z0-9_]{3,20}$', username))
@@ -12,8 +12,11 @@ def get_db_connection():
     if not db_url:
         try:
             db_url = st.secrets["DATABASE_URL"]
-        except KeyError:
+        except Exception:
             pass
+    # Default to "users.db" if DATABASE_URL is not set or refers to a PostgreSQL URL.
+    if not db_url or db_url.startswith("postgresql://") or db_url.startswith("postgres://"):
+        db_url = "users.db"
     return db_url
 
 def init_db(conn):
@@ -21,9 +24,9 @@ def init_db(conn):
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username VARCHAR(50) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL
             )
         ''')
         conn.commit()
@@ -37,30 +40,27 @@ def save_user(username, password):
     if not validate_username(username):
         return "invalid"
     
-    db_url = get_db_connection()
-    if not db_url:
-        return "Database error: DATABASE_URL is not set"
-        
+    db_path = get_db_connection()
     conn = None
     try:
-        conn = psycopg2.connect(db_url)
+        conn = sqlite3.connect(db_path)
         init_db(conn)
         cursor = conn.cursor()
         
-        cursor.execute("SELECT username FROM users WHERE username = %s", (username,))
+        cursor.execute("SELECT username FROM users WHERE username = ?", (username,))
         if cursor.fetchone():
             cursor.close()
             conn.close()
             return "exists"
             
         hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_pw))
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_pw))
         conn.commit()
         cursor.close()
         conn.close()
         return "success"
     except Exception as e:
-        print(f"PostgreSQL write error: {e}")
+        print(f"SQLite write error: {e}")
         if conn:
             conn.rollback()
             conn.close()
@@ -71,17 +71,14 @@ def check_credentials(username, password):
     if not username:
         return False
     
-    db_url = get_db_connection()
-    if not db_url:
-        raise ValueError("DATABASE_URL is missing! Please configure it in your secrets.")
-        
+    db_path = get_db_connection()
     conn = None
     try:
-        conn = psycopg2.connect(db_url)
+        conn = sqlite3.connect(db_path)
         init_db(conn)
         cursor = conn.cursor()
         
-        cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
+        cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
         row = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -95,18 +92,16 @@ def check_credentials(username, password):
                 return bcrypt.checkpw(password.encode('utf-8'), stored_val.encode('utf-8'))
         except Exception:
             pass
-        return stored_val == password
+        return False
     except Exception as e:
-        print(f"PostgreSQL read error: {e}")
+        print(f"SQLite read error: {e}")
         if conn:
             conn.close()
         raise e
 
 def show_login():
-    db_url = get_db_connection()
-    if not db_url:
-        st.error("🔑 DATABASE_URL is missing! Please configure your PostgreSQL database URL in your local .env or Streamlit App Secrets.")
-        st.stop()
+    db_path = get_db_connection()
+
 
     st.markdown("""
         <div style="text-align: center; margin-bottom: 2rem;">
@@ -118,7 +113,7 @@ def show_login():
     if 'login_failed' not in st.session_state:
         st.session_state.login_failed = False
 
-    tab1, tab2 = st.tabs(["🔐 Login", "📝 Sign Up"])
+    tab1, tab2 = st.tabs([" Login", " Sign Up"])
     
     with tab1:
         with st.form("login_form"):
@@ -138,7 +133,7 @@ def show_login():
                         st.session_state.login_failed = True
                         st.error("Invalid credentials. Please try again or create an account.")
                 except Exception as e:
-                    st.error(f"❌ Database error: {e}")
+                    st.error(f" Database error: {e}")
 
     with tab2:
         with st.form("signup_form"):
@@ -149,18 +144,21 @@ def show_login():
             submitted_signup = st.form_submit_button("Create Account", use_container_width=True)
             if submitted_signup:
                 if len(new_user) > 0 and len(new_pass) > 0:
-                    status = save_user(new_user, new_pass)
-                    if status == "success":
-                        st.success("Account created successfully! You can now log in.")
-                        st.session_state.login_failed = False
-                    elif status == "exists":
-                        st.warning("Username already exists. Please choose another one.")
-                    elif status == "invalid":
-                        st.warning("⚠️ Username must be 3-20 characters long and contain only letters, numbers, and underscores (no spaces or slashes).")
-                    elif status.startswith("Database error:"):
-                        st.error(f"❌ {status}")
+                    if len(new_pass) < 8:
+                        st.warning("Password must be at least 8 characters long.")
                     else:
-                        st.error("❌ A database error occurred. Please try again.")
+                        status = save_user(new_user, new_pass)
+                        if status == "success":
+                            st.success("Account created successfully! You can now log in.")
+                            st.session_state.login_failed = False
+                        elif status == "exists":
+                            st.warning("Username already exists. Please choose another one.")
+                        elif status == "invalid":
+                            st.warning(" Username must be 3-20 characters long and contain only letters, numbers, and underscores (no spaces or slashes).")
+                        elif status.startswith("Database error:"):
+                            st.error(f" {status}")
+                        else:
+                            st.error("A database error occurred. Please try again.")
                 else:
                     st.warning("Please fill in both fields.")
 
@@ -172,4 +170,4 @@ def show_login():
         st.session_state.login_failed = False
         return 'demo'
 
-    return False
+    return False

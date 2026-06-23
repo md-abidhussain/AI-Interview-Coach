@@ -1,9 +1,11 @@
 🎓 AI Interview Coach
+AI-powered interview practice tool with role-specific questions, voice/text answers, Gemini AI feedback, and secure user authentication.
 
-An interactive AI-based platform to help users practice interview questions and get real-time feedback on their communication and technical responses.
+### Topics:
+`python`, `streamlit`, `gemini-api`, `whisper`, `sqlite`, `bcrypt`, `nlp`, `interview-prep`, `ai`, `speech-recognition`
 
 💡 Project Type: Voice + Text Based AI App  
-🛠️ Built With: Streamlit, Gemini Flash API, Whisper, SpeechRecognition, PostgreSQL  
+🛠️ Built With: Streamlit, Gemini Flash API, Whisper, SpeechRecognition, SQLite  
 ☁️ Deployed On: [Streamlit Cloud](https://ai-interview-coach-06122005.streamlit.app/)
 
 🔑 Features
@@ -12,7 +14,7 @@ An interactive AI-based platform to help users practice interview questions and 
 ✍️ Text-based answer option
 🧠 AI-generated questions based on job role
 🗣️ AI feedback on both content + communication
-🔐 User login/signup with secure PostgreSQL storage & bcrypt password hashing
+🔐 User login/signup with secure SQLite storage & bcrypt password hashing
 🎨 Modern dark mode UI with gradient styling
 🧪 Robust Gemini model fallback chain (Gemini 2.5-flash -> 2.0-flash -> 1.5-flash)
 
@@ -31,7 +33,7 @@ An interactive AI-based platform to help users practice interview questions and 
 3. Create a `.env` file in the root directory and add your database and API credentials:
    ```env
    GEMINI_API_KEY=your_actual_api_key_here
-   DATABASE_URL=postgresql://username:password@localhost:5432/dbname
+   DATABASE_URL=users.db
    ```
 
 4. Run the Streamlit application:
@@ -41,12 +43,12 @@ An interactive AI-based platform to help users practice interview questions and 
 
 ⚙️ Secret Configurations & Deployment
 
-### 1. PostgreSQL Database Configuration
-This project uses **PostgreSQL** exclusively for user account registration and login authentication.
-* **Local Run:** Set the `DATABASE_URL` key in your `.env` file.
+### 1. SQLite Database Configuration
+This project uses **SQLite** for user account registration and login authentication.
+* **Local Run:** Set the `DATABASE_URL` key in your `.env` file (e.g., `DATABASE_URL=users.db`). If not set, it defaults to `users.db` automatically.
 * **Streamlit Cloud:** Add `DATABASE_URL` to your **App Secrets** (see below).
 
-*Note: The app will automatically connect and initialize the `users` table on startup once `DATABASE_URL` is provided.*
+*Note: The app will automatically connect and initialize the `users` table on startup.*
 
 ### 2. GitHub Secrets (Git Secrets)
 To securely store credentials in GitHub (e.g. for CI/CD runners):
@@ -67,6 +69,6 @@ Streamlit Cloud uses its own secret manager to run the app. To add your database
 5. Enter your configuration keys in TOML format:
    ```toml
    GEMINI_API_KEY = "your_actual_api_key_here"
-   DATABASE_URL = "postgresql://username:password@hostname:5432/dbname"
+   DATABASE_URL = "users.db"
    ```
 6. Click **Save**. The app will automatically restart and be active!
