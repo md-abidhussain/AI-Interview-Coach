@@ -4,7 +4,7 @@ def record_and_transcribe():
     try:
         import pyaudio
     except ImportError:
-        return "⚠️ Live microphone recording is only supported when running this application locally. Since the deployed cloud server cannot access your local microphone, please use the 'Upload Audio' option instead!"
+        return "Live microphone recording is only supported when running this application locally. Since the deployed cloud server cannot access your local microphone, please use the 'Upload Audio' option instead!"
 
     recognizer = sr.Recognizer()
     try:
@@ -13,11 +13,11 @@ def record_and_transcribe():
             text = recognizer.recognize_google(audio)
             return text
     except sr.WaitTimeoutError:
-        return "⚠️ Mic timed out. Please try again."
+        return "Mic timed out. Please try again."
     except sr.UnknownValueError:
-        return "⚠️ Couldn't understand. Speak clearly."
+        return "Couldn't understand. Speak clearly."
     except Exception as e:
-        return f"❌ Error: {e}"
+        return f"Error: {e}"
 
 def record_audio_with_pyaudio(filename, duration=5):
     import pyaudio

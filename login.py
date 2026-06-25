@@ -102,10 +102,9 @@ def check_credentials(username, password):
 def show_login():
     db_path = get_db_connection()
 
-
     st.markdown("""
         <div style="text-align: center; margin-bottom: 2rem;">
-            <h1 style="font-size: 3rem; font-weight: 800; color: #f8fafc; margin-bottom: 0.5rem; background: -webkit-linear-gradient(45deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Interview Coach</h1>
+            <h1 style="font-size: 3rem; font-weight: 800; color: #f8fafc; margin-bottom: 0.5rem; background: -webkit-linear-gradient(45deg, #3b82f6, #ff4b4b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Interview Coach</h1>
             <p style="font-size: 1.2rem; color: #94a3b8; max-width: 600px; margin: 0 auto;">Master your interview skills with real-time AI feedback and personalized questions.</p>
         </div>
     """, unsafe_allow_html=True)

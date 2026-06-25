@@ -7,7 +7,6 @@ from mic_input import record_and_transcribe
 def apply_login_styles():
     st.markdown("""
     <style>
-        /* Sleek dark gradient for login page */
         [data-testid="stApp"] {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             display: flex;
@@ -28,7 +27,6 @@ def apply_login_styles():
             -webkit-backdrop-filter: blur(12px);
         }
 
-        /* Forms */
         div[data-testid="stForm"] {
             border: none;
             background: transparent;
@@ -40,45 +38,57 @@ def apply_login_styles():
             font-weight: 500;
         }
         
-        div[data-testid="stTextInput"] input {
+        div[data-baseweb="input"], div[data-baseweb="textarea"] {
             background-color: rgba(15, 23, 42, 0.6) !important;
-            color: #f8fafc !important;
             border: 1px solid rgba(148, 163, 184, 0.2) !important;
-            border-radius: 8px;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
             width: 100% !important;
+        }
+        div[data-baseweb="input"]:focus-within, div[data-baseweb="textarea"]:focus-within {
+            background-color: rgba(15, 23, 42, 0.8) !important;
+            border-color: #ff4b4b !important;
+            box-shadow: 0 0 0 1px #ff4b4b !important;
+        }
+        div[data-baseweb="base-input"] {
+            background-color: transparent !important;
+            border: none !important;
+        }
+        div[data-baseweb="base-input"] button {
+            background-color: transparent !important;
+            border: none !important;
+        }
+        div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea {
+            background: transparent !important;
+            color: #f8fafc !important;
+            border: none !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            font-size: 15px !important;
+        }
+        div[data-baseweb="input"] input {
             height: 44px !important;
             padding: 0 1rem !important;
-            font-size: 15px !important;
-            transition: all 0.2s ease;
-        }
-        div[data-testid="stTextInput"] input:focus {
-            background-color: rgba(15, 23, 42, 0.8) !important;
-            outline: none !important;
-        }
-        div[data-testid="stTextInput"] input::placeholder {
-            color: #64748b !important;
         }
 
-        /* Buttons matching the blue-purple gradient */
         div[data-testid="stFormSubmitButton"] > button {
             border: none;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #ff4b4b 100%);
             color: white !important;
             border-radius: 8px;
             padding: 10px 0;
             font-weight: 600;
             transition: transform 0.1s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.39);
+            box-shadow: 0 4px 14px 0 rgba(255, 75, 75, 0.39);
         }
         div[data-testid="stFormSubmitButton"] > button:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 6px 20px rgba(255, 75, 75, 0.4);
         }
         div[data-testid="stFormSubmitButton"] > button:active {
             transform: translateY(0);
         }
 
-        /* Tabs styling */
         button[data-baseweb="tab"] {
             color: #94a3b8;
             font-weight: 600;
@@ -87,7 +97,7 @@ def apply_login_styles():
         }
         button[data-baseweb="tab"][aria-selected="true"] {
             color: #f8fafc;
-            border-bottom: 2px solid #8b5cf6 !important;
+            border-bottom: 2px solid #ff4b4b !important;
         }
         
         div[data-testid="stForm"] div[data-testid="stNotification"] {
@@ -98,7 +108,6 @@ def apply_login_styles():
 
 st.markdown("<style>.stTabs [data-baseweb='tab'] {font-size: 1rem !important;}</style>", unsafe_allow_html=True)
 
-
 def load_custom_css():
     st.markdown("""
         <style>
@@ -106,12 +115,11 @@ def load_custom_css():
                 height: 100%;            
                 margin: 0;
                 padding: 0;
-                background: #0f172a; /* Solid dark slate for main app */
+                background: #0f172a;
                 font-family: 'Inter', 'Segoe UI', sans-serif;
                 color: #f8fafc;
             }
 
-            /* Container inside the app */
             .main .block-container {
                 max-width: 800px;
                 padding-top: 3rem;
@@ -128,7 +136,7 @@ def load_custom_css():
                 font-weight: 800;
                 margin-top: 1rem;
                 margin-bottom: 0.5rem;
-                background: -webkit-linear-gradient(45deg, #3b82f6, #8b5cf6);
+                background: -webkit-linear-gradient(45deg, #3b82f6, #ff4b4b);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
             }
@@ -139,7 +147,6 @@ def load_custom_css():
                 color: #cbd5e1;
             }
 
-            /* Styling the feedback and response boxes to be highly visible */
             .question-box, .feedback-box, .answer-box {
                 background-color: #1e293b;
                 color: #f8fafc;
@@ -154,7 +161,7 @@ def load_custom_css():
                 white-space: pre-wrap;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             }
-            .question-box { border-left-color: #8b5cf6; }
+            .question-box { border-left-color: #ff4b4b; }
             .feedback-box { border-left-color: #10b981; }
 
             .score-badge {
@@ -177,7 +184,6 @@ def load_custom_css():
                 border-top: 1px solid rgba(255,255,255,0.05);
             }
 
-            /* Radio options styling */
             div[data-testid="stRadio"] > label {
                 font-size: 1.1rem;
                 font-weight: 600;
@@ -191,50 +197,60 @@ def load_custom_css():
                 border-radius: 12px;
             }
 
-            /* Main App Text Input / Text Area Formatting */
-            div[data-testid="stTextInput"] input,
-            div[data-testid="stTextArea"] textarea {
-                background-color: rgba(30, 41, 59, 1) !important;
-                color: #f8fafc !important;
+            div[data-baseweb="input"], div[data-baseweb="textarea"] {
+                background-color: #1e293b !important;
                 border: 1px solid rgba(148, 163, 184, 0.2) !important;
                 border-radius: 10px !important;
-                padding: 0.75rem 1rem !important;
-                font-size: 15px !important;
                 transition: all 0.2s ease-in-out !important;
+                width: 100% !important;
+            }
+            div[data-baseweb="input"]:focus-within, div[data-baseweb="textarea"]:focus-within {
+                border-color: #ff4b4b !important;
+                box-shadow: 0 0 0 1px #ff4b4b !important;
+            }
+            div[data-baseweb="base-input"] {
+                background-color: transparent !important;
+                border: none !important;
+            }
+            div[data-baseweb="base-input"] button {
+                background-color: transparent !important;
+                border: none !important;
+            }
+            div[data-baseweb="input"] input, div[data-baseweb="textarea"] textarea {
+                background: transparent !important;
+                color: #f8fafc !important;
+                border: none !important;
+                box-shadow: none !important;
+                font-size: 15px !important;
+                width: 100% !important;
+            }
+            div[data-baseweb="input"] input {
+                padding: 0.75rem 1rem !important;
+                height: 44px !important;
+            }
+            div[data-baseweb="textarea"] textarea {
+                padding: 0.75rem 1rem !important;
             }
 
-            div[data-testid="stTextInput"] input::placeholder,
-            div[data-testid="stTextArea"] textarea::placeholder {
-                color: #64748b !important;
-            }
-
-            div[data-testid="stTextInput"] input:focus,
-            div[data-testid="stTextArea"] textarea:focus {
-                background-color: rgba(30, 41, 59, 1) !important;
-            }
-
-            /* Override Streamlit Markdown constraints */
             label, .stMarkdown, p, span, h1, h2, h3, h4 {
                 color: #f1f5f9;
             }
 
-            /* Primary Action Button (Main App) */
             div[data-testid="stButton"] > button {
                 border: none;
-                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                background: linear-gradient(135deg, #3b82f6 0%, #ff4b4b 100%);
                 color: white !important;
                 border-radius: 8px;
                 padding: 10px 24px;
                 font-weight: 600;
                 transition: all 0.2s ease;
-                box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+                box-shadow: 0 4px 14px rgba(255, 75, 75, 0.3);
             }
             div[data-testid="stButton"] > button:hover {
                 transform: translateY(-1px);
-                box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+                box-shadow: 0 6px 20px rgba(255, 75, 75, 0.4);
             }
             
-            /* File uploader text */
             .stFileUploader > div > div > small {
                 color: #cbd5e1 !important;
             }
@@ -242,8 +258,7 @@ def load_custom_css():
         </style>
         """, unsafe_allow_html=True)
 
-
-st.set_page_config(page_title="AI Interview Coach", layout="wide", page_icon="🎓")
+st.set_page_config(page_title="AI Interview Coach", layout="wide")
 load_custom_css()
 
 if 'mode' not in st.session_state:
@@ -251,18 +266,16 @@ if 'mode' not in st.session_state:
 
 if st.session_state.mode == 'login':
     apply_login_styles()
-    
     login_result = show_login()
 
     if login_result is True or login_result == 'demo':
         st.session_state.mode = 'app'
         st.rerun()
 
-
 elif st.session_state.mode == 'app':
     with st.sidebar:
         st.markdown("<h3 style='color: #cbd5e1;'>Session Management</h3>", unsafe_allow_html=True)
-        if st.button("🚪 Log Out", use_container_width=True):
+        if st.button("Log Out", use_container_width=True):
             st.session_state.clear()
             st.rerun()
       
@@ -275,12 +288,15 @@ elif st.session_state.mode == 'app':
         if 'interview_question' not in st.session_state or st.session_state.get('current_role') != role:
             st.session_state.current_role = role
             with st.spinner("Generating interview question..."):
-                st.session_state.interview_question = generate_question(role)
+                try:
+                    st.session_state.interview_question = generate_question(role)
+                except Exception as e:
+                    st.session_state.interview_question = f"Error: {e}"
         
-        st.markdown("### 💬 Gemini's Interview Question")
-        if st.session_state.interview_question.startswith("❌"):
+        st.markdown("### Gemini's Interview Question")
+        if st.session_state.interview_question.startswith("Error:"):
             st.error(st.session_state.interview_question)
-            if st.button("🔄 Try Again"):
+            if st.button("Try Again"):
                 if 'interview_question' in st.session_state:
                     del st.session_state.interview_question
                 st.rerun()
@@ -288,72 +304,70 @@ elif st.session_state.mode == 'app':
             st.markdown(f"<div class='question-box'>{st.session_state.interview_question}</div>", unsafe_allow_html=True)
             col1, col2 = st.columns([1, 4])
             with col1:
-                if st.button("🔄 Next Question"):
+                if st.button("Next Question"):
                     if 'interview_question' in st.session_state:
                         del st.session_state.interview_question
                     st.rerun()
 
-        option = st.radio("🎯 Choose how you'll answer:", ["✍️ Text Input", "🎙️ Upload Audio", "🎤 Speak Live (Mic)"])
+        option = st.radio("Choose how you'll answer:", ["Text Input", "Upload Audio", "Speak Live (Mic)"])
 
-        if option == "✍️ Text Input":
-            user_input = st.text_area("📝 Type your answer:")
-            if st.button("📤 Submit Text Answer"):
+        if option == "Text Input":
+            user_input = st.text_area("Type your answer:")
+            if st.button("Submit Text Answer"):
                 if user_input:
                     with st.spinner("Gemini is analyzing your answer..."):
-                        feedback, score = get_feedback(answer=user_input, role=role, mode="text")
-                    st.markdown("### 🗣️ Transcribed Answer")
-                    st.markdown(f"<div class='answer-box'>{user_input}</div>", unsafe_allow_html=True)
-                    st.markdown("### 💡 Gemini's Feedback")
-                    if feedback.startswith("❌"):
-                        st.error(feedback)
-                    else:
-                        st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
-                        st.markdown("### 📊 Your AI Score")
-                        st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
+                        try:
+                            feedback, score = get_feedback(answer=user_input, role=role, mode="text")
+                            st.markdown("### Transcribed Answer")
+                            st.markdown(f"<div class='answer-box'>{user_input}</div>", unsafe_allow_html=True)
+                            st.markdown("### Gemini's Feedback")
+                            st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
+                            st.markdown("### Your AI Score")
+                            st.markdown(f"<div class='score-badge'>Score: {score}/10</div>", unsafe_allow_html=True)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
                 else:
                     st.warning("Please enter your answer first!")
 
-        elif option == "🎙️ Upload Audio":
+        elif option == "Upload Audio":
             audio_file = st.file_uploader("Upload audio file", type=["mp3", "wav", "m4a"])
-            if audio_file and st.button("📤 Submit Audio"):
+            if audio_file and st.button("Submit Audio"):
                 with st.spinner("Transcribing your voice..."):
                     try:
                         transcribed = transcribe_audio_file(audio_file)
-                        st.success("📝 Transcription complete!")
-                        st.markdown("### 🗣️ Transcribed Answer")
+                        st.success("Transcription complete!")
+                        st.markdown("### Transcribed Answer")
                         st.markdown(f"<div class='answer-box'>{transcribed}</div>", unsafe_allow_html=True)
                         with st.spinner("Evaluating answer..."):
                             feedback, score = get_feedback(answer=transcribed, role=role, mode="voice")
-                        st.markdown("### 💡 Gemini's Feedback")
-                        if feedback.startswith("❌"):
-                            st.error(feedback)
-                        else:
-                            st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
-                            st.markdown("### 📊 Your AI Score")
-                            st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
+                        st.markdown("### Gemini's Feedback")
+                        st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
+                        st.markdown("### Your AI Score")
+                        st.markdown(f"<div class='score-badge'>Score: {score}/10</div>", unsafe_allow_html=True)
                     except Exception as e:
-                        st.error(f"❌ Error: {e}")
+                        st.error(f"Error: {e}")
 
-        elif option == "🎤 Speak Live (Mic)":
-            if st.button("🎙️ Start Recording"):
+        elif option == "Speak Live (Mic)":
+            if st.button("Start Recording"):
                 with st.spinner("Listening..."):
                     result = record_and_transcribe()
-                st.markdown("### 🗣️ Transcribed Answer")
+                st.markdown("### Transcribed Answer")
                 st.markdown(f"<div class='answer-box'>{result}</div>", unsafe_allow_html=True)
-                if result and "Error" not in result and "⚠️" not in result:
+                if result and not result.startswith("Error:") and not result.startswith("Live microphone"):
                     with st.spinner("Evaluating your response..."):
-                        feedback, score = get_feedback(answer=result, role=role, mode="voice")
-                    st.markdown("### 💡 Gemini's Feedback")
-                    if feedback.startswith("❌"):
-                        st.error(feedback)
-                    else:
-                        st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
-                        st.markdown("### 📊 Your AI Score")
-                        st.markdown(f"<div class='score-badge'>⭐ {score}/10</div>", unsafe_allow_html=True)
+                        try:
+                            feedback, score = get_feedback(answer=result, role=role, mode="voice")
+                            st.markdown("### Gemini's Feedback")
+                            st.markdown(f"<div class='feedback-box'>{feedback}</div>", unsafe_allow_html=True)
+                            st.markdown("### Your AI Score")
+                            st.markdown(f"<div class='score-badge'>Score: {score}/10</div>", unsafe_allow_html=True)
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                else:
+                    st.error(result)
 
         st.markdown("""
         <footer>
-        ⚡ Created by <strong>Mohd Abid Hussain</strong> 🎓 CSE @ Jamia Hamdard
+        Created by <strong>Mohd Abid Hussain</strong> | CSE @ Jamia Hamdard
         </footer>
         """, unsafe_allow_html=True)
-
