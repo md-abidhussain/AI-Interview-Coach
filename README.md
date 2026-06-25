@@ -18,7 +18,7 @@ Built as a solo project during an AI internship. Idea, architecture, and core lo
 
 | Login Page | Interview Screen | AI Feedback |
 |---|---|---|
-| ![Login](screenshots/Login_Interface.png) | ![Interview](screenshots/Asking_Question_Interface.png) | ![Feedback](screenshots/AI_Feedback_Interface.png) |
+| ![Login](screenshots/login_interface.png) | ![Interview](screenshots/asking_question_interface.png) | ![Feedback](screenshots/ai_feedback_interface.png) |
 
 ---
 
