@@ -2,7 +2,7 @@
 
 > AI-powered interview practice platform with role-specific questions, multi-modal answer input, real-time Gemini feedback, and secure user authentication.
 
-🔗 **Live Demo:** [ai-interview-coach-06122005.streamlit.app](https://ai-interview-coach-06122005.streamlit.app/)
+🔗 **Live Demo:** [ai-interview-coach-6122005.streamlit.app](https://ai-interview-coach-6122005.streamlit.app/)
 
 ---
 
@@ -14,16 +14,23 @@ Built as a solo project during an AI internship. Idea, architecture, and core lo
 
 ---
 
+## 📸 Screenshots
+
+| Login Page | Interview Screen | AI Feedback |
+|---|---|---|
+| ![Login](screenshots/Login_Interface.png) | ![Interview](screenshots/Asking_Question_Interface.png) | ![Feedback](screenshots/AI_Feedback_Interface.png) |
+
+---
+
 ## ✨ Features
 
-- 🔐 **Secure Authentication** — bcrypt-hashed passwords stored in SQLite; supports login, signup, and guest mode
-- 💬 **Role-Specific Questions** — Gemini generates tailored interview questions based on the target job role
+- 🔐 **Secure Authentication** — bcrypt-hashed passwords (min. 8 chars) stored in SQLite; login, signup, guest mode, and session logout
+- 💬 **Role-Specific Questions** — Gemini 2.5 Flash generates tailored interview questions based on the target job role
 - ✍️ **Text Answer Mode** — Type your response and get instant AI evaluation
 - 🎙️ **Audio Upload Mode** — Upload an MP3/WAV/M4A file; Whisper transcribes it, Gemini evaluates it
 - 🎤 **Live Mic Mode** — Speak directly; real-time transcription via SpeechRecognition
-- 🤖 **4-Model Fallback Chain** — Tries `gemini-2.5-flash → gemini-2.0-flash → gemini-1.5-flash → gemini-flash-latest` for high availability
 - 📊 **AI Scoring** — Structured feedback on knowledge, clarity, and relevance with a score out of 10
-- ⚠️ **Graceful Error Handling** — API failures return user-friendly messages, never raw crashes
+- ⚠️ **Graceful Error Handling** — API failures surface user-friendly messages, never raw stack traces
 
 ---
 
@@ -32,7 +39,7 @@ Built as a solo project during an AI internship. Idea, architecture, and core lo
 | Layer | Technology |
 |---|---|
 | Frontend / App | Streamlit |
-| AI / LLM | Google Gemini API (`google-generativeai`) |
+| AI / LLM | Google Gemini 2.5 Flash (`google-genai`) |
 | Speech-to-Text | OpenAI Whisper + SpeechRecognition |
 | Audio Processing | pydub |
 | Database | SQLite (`sqlite3`) |
@@ -64,7 +71,7 @@ Built as a solo project during an AI internship. Idea, architecture, and core lo
         │  mic_input.py
         │    │     │
      ┌──▼────▼─────▼──┐
-     │  gemini_module  │  4-model fallback chain + prompt engineering
+     │  gemini_module  │  Gemini 2.5 Flash + prompt engineering
      └────────────────┘
 ```
 
@@ -73,13 +80,14 @@ Built as a solo project during an AI internship. Idea, architecture, and core lo
 ## 📂 Project Structure
 
 ```
-├── app.py                  # Main Streamlit app + UI logic
-├── login.py                # Auth: bcrypt + SQLite signup/login
-├── gemini_module.py        # Gemini API integration + fallback chain
-├── whisper_transcriber.py  # Audio file → text (Whisper)
-├── mic_input.py            # Live mic → text (SpeechRecognition)
+├── app.py                    # Main Streamlit app, UI logic, session management
+├── login.py                  # Auth: bcrypt hashing + SQLite signup/login/validation
+├── gemini_module.py          # Gemini API client, question generation, feedback + scoring
+├── whisper_transcriber.py    # Audio file → text transcription (Whisper)
+├── mic_input.py              # Live mic → text (SpeechRecognition)
+├── screenshots/              # UI screenshots
 ├── requirements.txt
-├── .env                    # (not committed) API keys
+├── .env                      # (not committed) API keys
 └── .gitignore
 ```
 
@@ -89,8 +97,8 @@ Built as a solo project during an AI internship. Idea, architecture, and core lo
 
 **1. Clone the repo**
 ```bash
-git clone https://github.com/md-abidhussain/ai-interview-coach.git
-cd ai-interview-coach
+git clone https://github.com/md-abidhussain/AI-Interview-Coach.git
+cd AI-Interview-Coach
 ```
 
 **2. Install dependencies**
@@ -115,48 +123,26 @@ streamlit run app.py
 ## 🔐 Security Design
 
 - Passwords hashed with `bcrypt.hashpw()` on signup — never stored in plain text
-- `bcrypt.checkpw()` used for login verification — original password is never recoverable
-- API key loaded from `.env` → Streamlit Secrets → raises clear error if missing
+- Minimum 8-character password enforced on signup
+- Username validated with regex — alphanumeric + underscore, 3–20 chars only
+- `bcrypt.checkpw()` used for login — original password is never recoverable or stored
+- API key loaded from `.env` → Streamlit Secrets → raises a clear error if missing
 - `.env` and `users.db` excluded from version control via `.gitignore`
-
----
-
-## 🤖 Gemini Fallback Logic
-
-```python
-FALLBACK_MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-flash-latest"
-]
-```
-
-Each model is tried with a 15-second timeout. If all fail, a user-friendly error message is returned — the app never crashes raw on API failure.
-
----
-
-## 📸 Screenshots
-
-| Login Page | Interview Screen | AI Feedback |
-|---|---|---|
-| ![Login Page](screenshots/login_interface.png) | ![Interview Screen](screenshots/asking_question_interface.png) | ![AI Feedback](screenshots/ai_feedback_interface.png) |
 
 ---
 
 ## 🔮 Future Improvements
 
-- Session history — store past questions and scores per user in SQLite
-- Password strength validation on signup
-- Logout button with session expiry
-- Dashboard showing improvement over time
-- Support for more roles and difficulty levels
+- Session history — store past questions and scores per user in a second SQLite table
+- Performance dashboard — visualize improvement over time
+- Difficulty levels — beginner, intermediate, senior for each role
+- Export session as PDF report
 
 ---
 
 ## 👨💻 Author
 
-**Mohd Abid Hussain** — CSE @ Jamia Hamdard  
+**Mohd Abid Hussain** — CSE @ Jamia Hamdard
 [LinkedIn](https://www.linkedin.com/in/md-abidhussain) · [GitHub](https://github.com/md-abidhussain)
 
 ---
